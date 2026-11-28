@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מלאי ולוגיסטיקה · מאפיית הבית</title>
+<meta name="description" content="דשבורד מלאי ולוגיסטיקה לרשת מאפיות: מלאי, רכש, משלוחים ופחת">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Rubik:wght@500;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>מלאי ולוגיסטיקה · מאפיית הבית</h1>
+    <div class="source-bar">
+      <span class="source" id="source"><span class="dot"></span>טוען נתונים…</span>
+      <div class="seg" id="source-switch" role="group" aria-label="מקור הנתונים" hidden></div>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="מסכים">
+    <a class="tab" href="#overview">סקירה <span class="count" id="cnt-alerts" hidden></span></a>
+    <a class="tab" href="#inventory">מלאי</a>
+    <a class="tab" href="#procurement">רכש וספקים</a>
+    <a class="tab" href="#logistics">משלוחים וצי</a>
+    <a class="tab" href="#waste">פחת</a>
+    <a class="tab" href="#calendar">חגים ותכנון</a>
+  </nav>
+
+  <main id="main"><div class="loading">טוען נתונים…</div></main>
+
+  <!-- ===== overview ===== -->
+  <template id="tpl-overview">
+    <section class="pane" aria-labelledby="h-overview">
+      <h2 id="h-overview" class="visually-hidden" hidden>סקירה</h2>
+      <div class="kpis" id="ov-kpis"></div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><h2>דורש טיפול עכשיו</h2><span class="muted small" id="ov-alert-sum"></span></div>
+          <ul class="alerts" id="ov-alerts"></ul>
+          <button class="linkbtn" id="ov-alerts-more" hidden></button>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>שווי מלאי לפי סוג אחסון</h2><span class="muted small">₪, כל המיקומים</span></div>
+          <div class="chart" id="ov-storage"></div>
+          <div class="panel-head" style="margin-top:6px"><h2>שווי מלאי לפי מיקום</h2></div>
+          <div class="chart" id="ov-location"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>משלוחים שהגיעו בזמן, לפי יום</h2><span class="muted small">30 ימים אחרונים · "בזמן" = עד 15 דקות אחרי המתוכנן</span></div>
+        <div class="chart" id="ov-ontime"></div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ===== inventory ===== -->
+  <template id="tpl-inventory">
+    <section class="pane">
+      <div class="filters">
+        <label for="inv-loc">מיקום<select id="inv-loc"></select></label>
+        <label for="inv-cat">קטגוריה<select id="inv-cat"></select></label>
+        <label for="inv-storage">אחסון<select id="inv-storage"></select></label>
+        <label for="inv-q">חיפוש<input id="inv-q" type="search" placeholder="שם פריט או מק״ט"></label>
+      </div>
+      <div class="chips" id="inv-chips" role="group" aria-label="סינון לפי מצב"></div>
+      <div class="panel">
+        <div class="panel-head"><h2>מלאי לפי פריט ומיקום</h2><span class="muted small" id="inv-sum"></span></div>
+        <div class="tbl" id="inv-table"></div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ===== procurement ===== -->
+  <template id="tpl-procurement">
+    <section class="pane">
+      <div class="kpis" id="po-kpis"></div>
+      <div class="panel">
+        <div class="panel-head"><h2>הזמנות רכש פתוחות</h2><span class="muted small">באיחור = לא התקבלה ותאריך האספקה עבר</span></div>
+        <div class="tbl" id="po-open"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>ביצועי ספקים</h2><span class="muted small">הזמנות שהתקבלו ב-40 הימים האחרונים</span></div>
+        <div class="tbl" id="po-suppliers"></div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ===== logistics ===== -->
+  <template id="tpl-logistics">
+    <section class="pane">
+      <div class="filters"><label for="lg-branch">סניף<select id="lg-branch"></select></label></div>
+      <div class="kpis" id="lg-kpis"></div>
+      <div class="panel">
+        <div class="panel-head"><h2>משלוחי היום</h2><span class="muted small" id="lg-today-label"></span></div>
+        <div class="board" id="lg-today"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>עמידה בזמנים לפי יום</h2><span class="muted small">30 ימים אחרונים</span></div>
+        <div class="chart" id="lg-ontime"></div>
+      </div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head"><h2>ניצולת רכבים</h2><span class="muted small">ארגזים ממוצעים מתוך הקיבולת, לפי קו</span></div>
+          <div class="tbl" id="lg-fleet"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>חריגות טמפרטורה</h2><span class="muted small">מעל 5°C ברכב בקירור</span></div>
+          <div class="tbl" id="lg-temp"></div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ===== waste ===== -->
+  <template id="tpl-waste">
+    <section class="pane">
+      <div class="filters"><label for="ws-branch">סניף<select id="ws-branch"></select></label></div>
+      <div class="kpis" id="ws-kpis"></div>
+      <div class="panel">
+        <div class="panel-head"><h2>פחת שבועי לפי סיבה</h2><span class="muted small">₪ · 13 שבועות</span></div>
+        <div class="legend" id="ws-legend"></div>
+        <div class="chart" id="ws-weekly"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>פחת לפי סניף</h2><span class="muted small">4 שבועות אחרונים, לעומת 4 השבועות שלפניהם</span></div>
+        <div class="tbl" id="ws-branches"></div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ===== calendar (external API: Hebcal) ===== -->
+  <template id="tpl-calendar">
+    <section class="pane">
+      <div class="kpis" id="cal-kpis"></div>
+      <div class="panel">
+        <div class="panel-head"><h2>חגים קרובים והשפעה על המאפייה</h2><span class="muted small" id="cal-meta"></span></div>
+        <ul class="events" id="cal-events"></ul>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>שבת הקרובה לפי מיקום</h2><span class="muted small" id="cal-parasha"></span></div>
+        <p class="muted small">זמני כניסת השבת מחושבים לפי הקואורדינטות של כל מיקום. סגירה מוצעת: שעה לפני כניסת השבת. משלוח אחרון: שלוש שעות לפני.</p>
+        <div class="tbl" id="cal-shabbat"></div>
+      </div>
+      <p class="muted small">מקור: <a href="https://www.hebcal.com/home/developer-apis" target="_blank" rel="noopener">Hebcal.com API</a>. הנתונים חיים: הדפדפן פונה ישירות ל-API, בלי טוקן, ושומר עותק ל-12 שעות.</p>
+    </section>
+  </template>
+
+  <footer>
+    <span>כל הנתונים מומצאים לצורך הדגמה.</span>
+    <span id="footer-asof"></span>
+  </footer>
+</div>
+<!-- classic scripts (not type="module"): modules are blocked when the page is opened from disk -->
+<script src="data/data.js" defer></script>
+<script src="assets/model.js" defer></script>
+<script src="assets/calendar.js" defer></script>
+<script src="assets/app.js" defer></script>
+</body>
+</html>
